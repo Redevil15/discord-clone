@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -35,6 +36,12 @@ const formSchema = z.object({
 })
 
 export const InitialModal = () => {
+  const [isMounted, setisMounted] = useState(false)
+
+  useEffect(() => {
+    setisMounted(true)
+  }, [])
+
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -47,6 +54,10 @@ export const InitialModal = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     console.log(values);
+  }
+
+  if (!isMounted) {
+    return null
   }
 
   return (
