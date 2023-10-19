@@ -4,6 +4,7 @@ import type { Metadata } from 'next'
 import { Open_Sans } from 'next/font/google'
 import { ThemeProvider } from '@/components/theme-provider'
 import { cn } from '@/lib/utils'
+import { ModalProvider } from '@/components/providers/modal-provider'
 
 const font = Open_Sans({ subsets: ['latin'] })
 
@@ -31,6 +32,7 @@ export default function RootLayout({
             defaultTheme="dark"
             storageKey="discord-theme"
           >
+            <ModalProvider />
             {children}
           </ThemeProvider>
         </body>
