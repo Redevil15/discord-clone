@@ -1,9 +1,10 @@
-"use client"
+"use client";
 
-import * as z from "zod"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import axios from "axios"
+import axios from "axios";
+import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { useEffect } from "react";
 
 import {
   Dialog,
@@ -11,67 +12,64 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle
-} from "@/components/ui/dialog"
-
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
+  FormField,
   FormItem,
   FormLabel,
-  FormMessage,
-  FormField
-} from "@/components/ui/form"
-
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { FileUpload } from "@/components/ui/file-upload"
-import { useRouter } from "next/navigation"
-import { useModal } from "@/hooks/use-modal-store"
-import { useEffect } from "react"
+  FormMessage
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { FileUpload } from "@/components/ui/file-upload";
+import { useRouter } from "next/navigation";
+import { useModal } from "@/hooks/use-modal-store";
 
 const formSchema = z.object({
   name: z.string().min(1, {
-    message: "Server name is required"
+    message: "Server name is required."
   }),
   imageUrl: z.string().min(1, {
-    message: "Server image is required"
+    message: "Server image is required."
   })
-})
+});
 
 export const EditServerModal = () => {
   const { isOpen, onClose, type, data } = useModal();
   const router = useRouter();
 
-  const isModalOpen = isOpen && type === "editServer"
+  const isModalOpen = isOpen && type === "editServer";
   const { server } = data;
 
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      imageUrl: ""
+      imageUrl: "",
     }
   });
 
   useEffect(() => {
     if (server) {
-      form.setValue("name", server.name)
-      form.setValue("imageUrl", server.imageUrl)
+      form.setValue("name", server.name);
+      form.setValue("imageUrl", server.imageUrl);
     }
-  }, [server, form])
+  }, [server, form]);
 
   const isLoading = form.formState.isSubmitting;
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.patch(`/api/server/${server?.id}`, values);
+      await axios.patch(`/api/servers/${server?.id}`, values);
 
       form.reset();
       router.refresh();
       onClose();
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   }
 
@@ -88,7 +86,7 @@ export const EditServerModal = () => {
             Customize your server
           </DialogTitle>
           <DialogDescription className="text-center text-zinc-500">
-            Give your server a personality with a name an image.
+            Give your server a personality with a name and an image. You can always change it later.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -136,7 +134,7 @@ export const EditServerModal = () => {
               />
             </div>
             <DialogFooter className="bg-gray-100 px-6 py-4">
-              <Button disabled={isLoading} variant="primary">
+              <Button variant="primary" disabled={isLoading}>
                 Save
               </Button>
             </DialogFooter>
@@ -146,4 +144,3 @@ export const EditServerModal = () => {
     </Dialog>
   )
 }
-

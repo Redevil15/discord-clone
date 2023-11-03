@@ -1,44 +1,43 @@
-"use client"
+"use client";
 
-import * as z from "zod"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import axios from "axios"
+import qs from "query-string";
+import axios from "axios";
+import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { ChannelType } from "@prisma/client";
 
-import qs from "query-string"
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
-  DialogTitle
-} from "@/components/ui/dialog"
-
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
+  FormField,
   FormItem,
   FormLabel,
-  FormMessage,
-  FormField
-} from "@/components/ui/form"
-
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { useParams, useRouter } from "next/navigation"
-import { useModal } from "@/hooks/use-modal-store"
+  FormMessage
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useParams, useRouter } from "next/navigation";
+import { useModal } from "@/hooks/use-modal-store";
 import {
   Select,
   SelectContent,
-  SelectValue,
   SelectItem,
   SelectTrigger,
-} from "@/components/ui/select"
-import { ChannelType } from "@prisma/client"
+  SelectValue
+} from "@/components/ui/select";
+import { useEffect } from "react";
 
 const formSchema = z.object({
   name: z.string().min(1, {
-    message: "Channel name is required"
+    message: "Channel name is required."
   }).refine(
     name => name !== "general",
     {
@@ -46,22 +45,31 @@ const formSchema = z.object({
     }
   ),
   type: z.nativeEnum(ChannelType)
-})
+});
 
 export const CreateChannelModal = () => {
-  const { isOpen, onClose, type } = useModal();
+  const { isOpen, onClose, type, data } = useModal();
   const router = useRouter();
   const params = useParams();
 
-  const isModalOpen = isOpen && type === "createChannel"
-
+  const isModalOpen = isOpen && type === "createChannel";
+  const { channelType } = data;
+ 
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      type: ChannelType.TEXT,
+      type: channelType || ChannelType.TEXT,
     }
   });
+
+  useEffect(() => {
+    if (channelType) {
+      form.setValue("type", channelType);
+    } else {
+      form.setValue("type", ChannelType.TEXT);
+    }
+  }, [channelType, form]);
 
   const isLoading = form.formState.isSubmitting;
 
@@ -79,7 +87,7 @@ export const CreateChannelModal = () => {
       router.refresh();
       onClose();
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   }
 
@@ -134,7 +142,7 @@ export const CreateChannelModal = () => {
                     >
                       <FormControl>
                         <SelectTrigger
-                          className="bg-zinc-300/50 border-0 focus-visible:ring-0 text-black focus-visible:ring-offset-0 capitalize outline-none"
+                          className="bg-zinc-300/50 border-0 focus:ring-0 text-black ring-offset-0 focus:ring-offset-0 capitalize outline-none"
                         >
                           <SelectValue placeholder="Select a channel type" />
                         </SelectTrigger>
@@ -146,7 +154,7 @@ export const CreateChannelModal = () => {
                             value={type}
                             className="capitalize"
                           >
-                            {type.toLocaleLowerCase()}
+                            {type.toLowerCase()}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -157,7 +165,7 @@ export const CreateChannelModal = () => {
               />
             </div>
             <DialogFooter className="bg-gray-100 px-6 py-4">
-              <Button disabled={isLoading} variant="primary">
+              <Button variant="primary" disabled={isLoading}>
                 Create
               </Button>
             </DialogFooter>
@@ -167,4 +175,3 @@ export const CreateChannelModal = () => {
     </Dialog>
   )
 }
-
