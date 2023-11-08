@@ -54,7 +54,7 @@ export const CreateChannelModal = () => {
 
   const isModalOpen = isOpen && type === "createChannel";
   const { channelType } = data;
- 
+
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -66,6 +66,7 @@ export const CreateChannelModal = () => {
   useEffect(() => {
     if (channelType) {
       form.setValue("type", channelType);
+      console.log('que valor', channelType)
     } else {
       form.setValue("type", ChannelType.TEXT);
     }
