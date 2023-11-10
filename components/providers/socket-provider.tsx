@@ -56,10 +56,4 @@ export const SocketProvider = ({
       {children}
     </SocketContext.Provider>
   );
-
-  return (
-    <SocketContext.Provider value={{ socket, isConnected }}>
-      {children}
-    </SocketContext.Provider>
-  );
 }
