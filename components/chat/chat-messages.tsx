@@ -1,16 +1,18 @@
-"use client"
+"use client";
 
-import { Member, Message, Profile } from "@prisma/client";
-import { ChatWelcome } from "./chat-welcome";
-import { useChatQuery } from "@/hooks/use-chat-query";
-import { Loader2, ServerCrash } from "lucide-react";
 import { Fragment, useRef, ElementRef } from "react";
-import { ChatItem } from "./chat-item";
-import { format } from "date-fns"
+import { format } from "date-fns";
+import { Member, Message, Profile } from "@prisma/client";
+import { Loader2, ServerCrash } from "lucide-react";
+
+import { useChatQuery } from "@/hooks/use-chat-query";
 import { useChatSocket } from "@/hooks/use-chat-socket";
 import { useChatScroll } from "@/hooks/use-chat-scroll";
 
-const DATE_FORMAT = "d MM yyyy, HH:mm";
+import { ChatWelcome } from "./chat-welcome";
+import { ChatItem } from "./chat-item";
+
+const DATE_FORMAT = "d MMM yyyy, HH:mm";
 
 type MessageWithMemberWithProfile = Message & {
   member: Member & {
@@ -24,8 +26,8 @@ interface ChatMessagesProps {
   chatId: string;
   apiUrl: string;
   socketUrl: string;
-  socketQuery: Record<string, string>
-  paramKey: "channelId" | "conversationId"
+  socketQuery: Record<string, string>;
+  paramKey: "channelId" | "conversationId";
   paramValue: string;
   type: "channel" | "conversation";
 }
@@ -39,9 +41,9 @@ export const ChatMessages = ({
   socketQuery,
   paramKey,
   paramValue,
-  type
+  type,
 }: ChatMessagesProps) => {
-  const queryKey = `chat${chatId}`
+  const queryKey = `chat:${chatId}`;
   const addKey = `chat:${chatId}:messages`;
   const updateKey = `chat:${chatId}:messages:update`
 
@@ -60,11 +62,7 @@ export const ChatMessages = ({
     paramKey,
     paramValue,
   });
-  useChatSocket({
-    queryKey,
-    addKey,
-    updateKey
-  });
+  useChatSocket({ queryKey, addKey, updateKey });
   useChatScroll({
     chatRef,
     bottomRef,
@@ -73,7 +71,7 @@ export const ChatMessages = ({
     count: data?.pages?.[0]?.items?.length ?? 0,
   })
 
-  /* if (status === "loading") {
+  if (status === "loading") {
     return (
       <div className="flex flex-col flex-1 justify-center items-center">
         <Loader2 className="h-7 w-7 text-zinc-500 animate-spin my-4" />
@@ -82,7 +80,7 @@ export const ChatMessages = ({
         </p>
       </div>
     )
-  } */
+  }
 
   if (status === "error") {
     return (
@@ -110,10 +108,10 @@ export const ChatMessages = ({
             <Loader2 className="h-6 w-6 text-zinc-500 animate-spin my-4" />
           ) : (
             <button
-              className="text-zinc-500 hover:ext-zinc-600 dark:text-zinc-400 text-xs my-4 dark:hover:text-zinc-300 transition"
               onClick={() => fetchNextPage()}
+              className="text-zinc-500 hover:text-zinc-600 dark:text-zinc-400 text-xs my-4 dark:hover:text-zinc-300 transition"
             >
-              Load previous messages.
+              Load previous messages
             </button>
           )}
         </div>
@@ -123,14 +121,14 @@ export const ChatMessages = ({
           <Fragment key={i}>
             {group.items.map((message: MessageWithMemberWithProfile) => (
               <ChatItem
-                currentMember={member}
                 key={message.id}
                 id={message.id}
+                currentMember={member}
+                member={message.member}
                 content={message.content}
                 fileUrl={message.fileUrl}
                 deleted={message.deleted}
                 timestamp={format(new Date(message.createdAt), DATE_FORMAT)}
-                member={message.member}
                 isUpdated={message.updatedAt !== message.createdAt}
                 socketUrl={socketUrl}
                 socketQuery={socketQuery}
